@@ -103,9 +103,18 @@ public class BikeStructuralTest {
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
             () -> new Bike(null, Bike.BikeType.STANDARD));
 
-            System.out.println("Message: " + ex.getMessage());
-
             assertEquals("Bike ID cannot be null or empty", ex.getMessage());
+        }
+
+        @Test
+        void testrejectsNullBikeType() {
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> new Bike("b123", null));
+
+            assertEquals("Bike type cannot be null", ex.getMessage());
+
+
         }
 
     }
