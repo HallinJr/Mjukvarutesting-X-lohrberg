@@ -107,6 +107,15 @@ public class BikeStructuralTest {
         }
 
         @Test
+        void testRejectsEmptyId() {
+
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> new Bike(" ", Bike.BikeType.STANDARD));
+
+            assertEquals("Bike ID cannot be null or empty", ex.getMessage());
+        }
+
+        @Test
         void testrejectsNullBikeType() {
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
