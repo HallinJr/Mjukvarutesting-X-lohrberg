@@ -1,34 +1,19 @@
 package com.bikeshare.lab3;
 
-import java.lang.reflect.Modifier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.bikeshare.model.Bike;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class BikeStructuralTest {
 
-    @Nested
-    class IntegrityTests {
 
-        @Test
-        void enumBikeTypeShouldBePublic() {
-
-            assertTrue(Modifier.isPublic(Bike.BikeType.class.getModifiers()));
-        }
-
-        @Test
-        void bikeConstructorShouldBePublic() {
-
-            assertTrue(Modifier.isPublic(Bike.class.getModifiers()));
-        }
-
-    }
 
     @Nested
     class FunctionalTests {
@@ -49,18 +34,159 @@ public class BikeStructuralTest {
         }
 
         @Test
+        void testStartRideWithBikeInUse() {
+            testBike.reserve();
+            testBike.startRide();
+
+            assertThrows(IllegalStateException.class, () -> testBike.startRide());
+        }
+
+        @Test
+        void testStartElectricRideWithLowBatteryLevel() {
+
+            testBike.startRide();
+            testBike.endRide(45.00000000000001);
+
+            assertThrows(IllegalStateException.class, () -> testBike.startRide(), "Percent left in bike: " + testBike.getBatteryLevel());
+        }
+
+        @Test
+        void testEndRide() {
+
+            assertThrows(IllegalStateException.class, () -> testBike.endRide(10));
+        }
+
+        @Test
+        void testEndRideWithNegativeDistanceTraveled() {
+            testBike.startRide();
+
+            assertThrows(IllegalArgumentException.class, () -> testBike.endRide(-1));
+        }
+
+        @Test
+        void testSendToMaintenanceWhileBikeInUse() {
+            testBike.startRide();
+
+            assertThrows(IllegalStateException.class, () -> testBike.sendToMaintenance());
+        }
+
+        @Test
+        void testSendToMaintenance() {
+            testBike.sendToMaintenance();
+
+            assertTrue(testBike.getStatus() == Bike.BikeStatus.MAINTENANCE);
+        }
+
+        @Test
+        void testCheckMaintenanceRequiredForBatteryLevel() {
+            testBike.startRide();
+            testBike.endRide(48);
+            assertTrue(testBike.needsMaintenance());
+        }
+
+        @Test
+        void testCheckMaintenanceRequiredForDistance() {
+            Bike nonElectricBike = new Bike("B123", Bike.BikeType.STANDARD);
+
+            nonElectricBike.startRide();
+            nonElectricBike.endRide(1000);
+            assertTrue(nonElectricBike.needsMaintenance());
+        }
+
+        @Test
+        void test100XRidesOnNonElectricBikeNeedsMaintenance() {
+            Bike nonElectricBike = new Bike("B123", Bike.BikeType.PREMIUM);
+
+            for (int i = 0; i <100; i++) {
+                nonElectricBike.startRide();
+                nonElectricBike.endRide(1);
+            }
+
+            assertTrue(nonElectricBike.needsMaintenance());
+        }
+
+        @Test
+        void testChargeNonElectricBike() {
+            Bike nonElectricBike = new Bike("B123", Bike.BikeType.PREMIUM);
+
+            assertThrows(IllegalStateException.class, () -> nonElectricBike.chargeBattery(10));
+        }
+
+        @Test
+        void testChargeElectricBike() {
+
+            assertThrows(IllegalArgumentException.class, () -> testBike.chargeBattery(-1));
+            assertThrows(IllegalArgumentException.class, () -> testBike.chargeBattery(101));
+        }
+
+        @Test
+        void testChargeBike() {
+            testBike.startRide();
+            testBike.endRide(1);
+
+            double prevBatteryLevel = testBike.getBatteryLevel();
+            testBike.chargeBattery(2);
+
+            assertTrue(prevBatteryLevel + 2 == testBike.getBatteryLevel());
+        }
+
+        @Test
+        void testGetBikeType() {
+
+           assertTrue(testBike.getType() == Bike.BikeType.ELECTRIC);
+        }
+
+        @Test
+        void testBikeStatusInMaintenance() {
+            testBike.sendToMaintenance();
+            assertTrue(testBike.getStatus() == Bike.BikeStatus.MAINTENANCE);
+        }
+
+        @Test
+        void testCompleteMaintenanceWithBikeNotInMaintenance() {
+            testBike.startRide();
+
+            assertThrows(IllegalStateException.class, () -> testBike.completeMaintenance());
+            assertFalse(testBike.getStatus() == Bike.BikeStatus.MAINTENANCE);
+        }
+
+        @Test
+        void testBikeInMaintenance() {
+            testBike.sendToMaintenance();
+            testBike.completeMaintenance();
+            LocalDateTime currentDate = LocalDateTime.now();
+
+
+            assertTrue(testBike.getStatus() == Bike.BikeStatus.AVAILABLE);
+            assertTrue(testBike.getLastMaintenanceDate().isEqual(currentDate));
+            assertFalse(testBike.needsMaintenance());
+        }
+
+        @Test
+        void testCompleteMaintenenaceForElectricBike() {
+            testBike.startRide();
+            testBike.endRide(10);
+
+            testBike.sendToMaintenance();
+            testBike.completeMaintenance();
+            assertTrue(testBike.getBatteryLevel() == 100.0);
+        }
+
+
+
+        @Test
         void testReserveAvailable() {
             testBike.reserve();
 
             assertTrue(testBike.getStatus() == Bike.BikeStatus.RESERVED);
-
         }
 
         @Test
         void testReserveNotAvailable() {
             testBike.reserve();
 
-            assertThrows(IllegalStateException.class, () -> testBike.reserve(), "mesagfe");
+            assertTrue(testBike.getStatus() == Bike.BikeStatus.RESERVED);
+            assertThrows(IllegalStateException.class, () -> testBike.reserve());
 
         }
 
