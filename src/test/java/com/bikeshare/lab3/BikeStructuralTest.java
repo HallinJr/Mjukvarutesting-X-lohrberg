@@ -1,15 +1,17 @@
 package com.bikeshare.lab3;
 
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.bikeshare.model.Bike;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BikeStructuralTest {
 
@@ -130,7 +132,7 @@ public class BikeStructuralTest {
             assertTrue(prevBatteryLevel + 2 == testBike.getBatteryLevel());
         }
 
-        @Test
+        @Test //flytta till getters test
         void testGetBikeType() {
 
            assertTrue(testBike.getType() == Bike.BikeType.ELECTRIC);
@@ -242,7 +244,7 @@ public class BikeStructuralTest {
         }
 
         @Test
-        void testrejectsNullBikeType() {
+        void testRejectsNullBikeType() {
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
             () -> new Bike("b123", null));
@@ -251,6 +253,67 @@ public class BikeStructuralTest {
 
 
         }
+
+        @Test
+        void testMarkAsBroken() {
+
+            testBike.markAsBroken();
+
+            assertEquals(Bike.BikeStatus.BROKEN, testBike.getStatus());
+            assertTrue(testBike.needsMaintenance());
+        }
+
+        @Test
+        void testBikeIsNotAvailableWhenNeedsMaintenanceIsTrue()
+        {
+            testBike.startRide();
+            testBike.endRide(1000.0);
+
+            assertTrue(testBike.needsMaintenance());
+            assertFalse(testBike.isAvailable());
+        }
+
+        @Test
+        void testBikeIsNotAvailableWhenStatusNotAvailable() {
+
+            testBike.startRide();
+            assertFalse(testBike.isAvailable());
+
+        }
+
+
+
+        @Test
+        void testGettersInitialAndAfterChanges() {
+
+            assertEquals("B123", testBike.getBikeId());
+
+            assertEquals(0, testBike.getTotalRides());
+            assertEquals(0.0, testBike.getTotalDistance());
+            assertNull(testBike.getLastUsedDate());
+            assertNull(testBike.getCurrentStationId());
+            assertTrue(testBike.isAvailable());
+
+            testBike.setCurrentStationId("S123");
+            assertEquals("S123", testBike.getCurrentStationId());
+
+        }
+
+        @Test
+        void testToString() {
+
+            String bikeString = testBike.toString();
+
+            assertTrue(bikeString.contains("B123"));
+            assertTrue(bikeString.contains("ELECTRIC")); //Testsas på fler ställen i think
+            assertTrue(bikeString.contains("AVAILABLE"));
+
+            
+        }
+
+        
+
+        
 
     }
 }
