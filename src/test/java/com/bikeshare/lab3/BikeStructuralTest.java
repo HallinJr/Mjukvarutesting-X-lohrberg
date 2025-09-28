@@ -284,7 +284,7 @@ public class BikeStructuralTest {
 
 
         @Test
-        void testGettersInitialAndAfterChanges() {
+        void testGetters() {
 
             assertEquals("B123", testBike.getBikeId());
 
