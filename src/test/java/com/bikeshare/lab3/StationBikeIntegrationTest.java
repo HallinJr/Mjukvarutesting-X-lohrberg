@@ -2,6 +2,7 @@ package com.bikeshare.lab3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +55,8 @@ public class StationBikeIntegrationTest {
             Double beforeCharge = testBikeElectric.getBatteryLevel();
 
             station.addBike(testBikeElectric);
-            station.addBike(testbike);
+
+            assertThrows(IllegalStateException.class, () -> station.chargeElectricBikes(5));
 
             station.enableCharging(1);
             station.chargeElectricBikes(5.0);
@@ -63,6 +65,26 @@ public class StationBikeIntegrationTest {
             assertTrue(afterCharge > beforeCharge);
 
             
+        }
+
+        @Test
+        void testCantAddBikeWhenStationIsFull()
+        {
+            station.addBike(testbike);
+            station.addBike(testBikeElectric);
+            Bike anotherBike = new Bike("C123", Bike.BikeType.PREMIUM);
+
+            assertThrows(IllegalStateException.class, () -> station.addBike(anotherBike));
+
+        }
+
+        @Test
+        void testCantRemoveBikeThatsNotPresentOrIsReserved() {
+            station.addBike(testbike);
+            assertThrows(IllegalStateException.class, () -> station.removeBike("Wrong Id"));
+
+            station.reserveBike("A123");
+            assertThrows(IllegalStateException.class, () -> station.removeBike("A123"));
         }
 
     }
