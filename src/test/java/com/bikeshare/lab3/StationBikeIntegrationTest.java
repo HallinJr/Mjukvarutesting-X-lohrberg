@@ -1,6 +1,7 @@
 package com.bikeshare.lab3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,12 +42,13 @@ public class StationBikeIntegrationTest {
             assertEquals("S01", testBikeElectric.getCurrentStationId());
             assertEquals("S01", testbike.getCurrentStationId());
 
-            assertTrue(station.getAvailableBikeCount() >= 0);
+            assertEquals(2, station.getTotalBikeCount());
             assertTrue(station.isFull());
 
             station.removeBike("B123");
             assertNull(testBikeElectric.getCurrentStationId());
             assertEquals(1, station.getTotalBikeCount());
+            assertFalse(station.isFull());
 
         }
 
