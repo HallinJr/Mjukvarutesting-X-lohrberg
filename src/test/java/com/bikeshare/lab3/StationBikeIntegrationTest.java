@@ -1,7 +1,7 @@
 package com.bikeshare.lab3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,16 +34,19 @@ public class StationBikeIntegrationTest {
         void testAddBikeAndSetsBikeStationStatus() {
 
             assertEquals(0, station.getTotalBikeCount());
+
             station.addBike(testBikeElectric);
             station.addBike(testbike);
 
-            assertEquals(2, station.getTotalBikeCount());
-            assertEquals("S01", station.getStationId());
+            assertEquals("S01", testBikeElectric.getCurrentStationId());
+            assertEquals("S01", testbike.getCurrentStationId());
+
             assertTrue(station.getAvailableBikeCount() >= 0);
             assertTrue(station.isFull());
 
             station.removeBike("B123");
-            assertFalse(station.isFull());
+            assertNull(testBikeElectric.getCurrentStationId());
+            assertEquals(1, station.getTotalBikeCount());
 
         }
 
@@ -84,6 +87,7 @@ public class StationBikeIntegrationTest {
             assertThrows(IllegalStateException.class, () -> station.removeBike("Wrong Id"));
 
             station.reserveBike("A123");
+            assertEquals(Bike.BikeStatus.RESERVED, testbike.getStatus());
             assertThrows(IllegalStateException.class, () -> station.removeBike("A123"));
         }
 
