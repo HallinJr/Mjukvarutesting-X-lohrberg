@@ -87,6 +87,17 @@ public class StationBikeIntegrationTest {
             assertThrows(IllegalStateException.class, () -> station.removeBike("A123"));
         }
 
+        @Test
+        void testAddBikeNullBike() {
+            assertThrows(IllegalArgumentException.class, () -> station.addBike(null));
+        }
+
+        @Test
+        void testAddBikeToInactiveStation() {
+            station.deactivate();
+            assertThrows(IllegalStateException.class, () -> station.addBike(testbike));
+        }
+
     }
     
 }
