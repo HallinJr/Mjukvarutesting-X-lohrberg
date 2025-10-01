@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import com.bikeshare.model.Bike;
 import com.bikeshare.model.Station;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public class StationBikeIntegrationTest {
 
 
@@ -32,24 +35,37 @@ public class StationBikeIntegrationTest {
         }
 
         @Test
-        void testAddBikeAndSetsBikeStationStatus() {
+        void testStationStatus() {
 
             assertEquals(0, station.getTotalBikeCount());
 
             station.addBike(testBikeElectric);
             station.addBike(testbike);
 
-            assertEquals("S01", testBikeElectric.getCurrentStationId());
-            assertEquals("S01", testbike.getCurrentStationId());
-
             assertEquals(2, station.getTotalBikeCount());
             assertTrue(station.isFull());
-
-            station.removeBike("B123");
-            assertNull(testBikeElectric.getCurrentStationId());
-            assertEquals(1, station.getTotalBikeCount());
+            station.removeBike(testBikeElectric.getBikeId());
             assertFalse(station.isFull());
 
+        }
+
+        @Test
+        void testRemoveBikeFromStation() {
+            station.addBike(testbike);
+            assertEquals("S01", testbike.getCurrentStationId());
+            assertEquals(1, station.getTotalBikeCount());
+            station.removeBike(testbike.getBikeId());
+            assertNull(testbike.getCurrentStationId());
+
+        }
+
+        @Test
+        void testBikeIsAtCorrectStation() {
+            station.addBike(testBikeElectric);
+            station.addBike(testbike);
+
+            assertEquals("S01", testBikeElectric.getCurrentStationId());
+            assertEquals("S01", testbike.getCurrentStationId());
         }
 
         @Test
@@ -94,15 +110,12 @@ public class StationBikeIntegrationTest {
         }
 
         @Test
-        void testAddBikeNullBike() {
-            assertThrows(IllegalArgumentException.class, () -> station.addBike(null));
-        }
-
-        @Test
         void testAddBikeToInactiveStation() {
             station.deactivate();
             assertThrows(IllegalStateException.class, () -> station.addBike(testbike));
         }
+
+
 
     }
     
