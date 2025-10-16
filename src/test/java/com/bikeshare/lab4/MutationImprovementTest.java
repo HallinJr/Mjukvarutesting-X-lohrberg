@@ -2,6 +2,11 @@ package com.bikeshare.lab4;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -9,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -266,12 +269,12 @@ public class MutationImprovementTest {
             int suspensionCountBefore = u.getSuspensionCount();
             u.suspend("taskig");
 
-            assertTrue(u.getStatus()== User.UserStatus.SUSPENDED);
+            assertTrue(u.getStatus() == User.UserStatus.SUSPENDED);
             assertEquals(suspensionCountBefore + 1, u.getSuspensionCount());
 
             u.reactivate();
 
-            assertTrue(u.getStatus()== User.UserStatus.ACTIVE);
+            assertTrue(u.getStatus() == User.UserStatus.ACTIVE);
 
         }
 
@@ -291,7 +294,6 @@ public class MutationImprovementTest {
             System.out.println(membershipTypeBefore);
 
             u.updateMembership(User.MembershipType.STUDENT);
-
 
             assertNotEquals(u.getMembershipType(), membershipTypeBefore);
         }
@@ -415,6 +417,34 @@ public class MutationImprovementTest {
 
             assertEquals("Insufficient balance", ex.getMessage());
 
+        }
+
+        @Test
+        void studentNoRides() {
+
+            u.verifyEmail();
+            u.activate();
+
+            u.updateMembership(User.MembershipType.STUDENT);
+            assertEquals(0.20, u.calculateDiscount());
+
+        }
+
+        @Test
+        void premiumAbove100Rides() {
+            u.verifyEmail();
+            u.activate();
+
+            u.updateMembership(User.MembershipType.PREMIUM);
+
+            u.addFunds(1000.0);
+
+            for (int i = 0; i < 101; i++) {
+                u.startRide("rideId");
+                u.endRide();
+            }
+
+            assertEquals(0.20, u.calculateDiscount());
         }
 
     }
