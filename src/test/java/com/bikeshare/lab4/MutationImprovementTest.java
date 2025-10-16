@@ -2,10 +2,7 @@ package com.bikeshare.lab4;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.bikeshare.model.Bike;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -118,10 +117,12 @@ public class MutationImprovementTest {
     class UserMutation {
 
         User u;
+        Bike bike;
 
         @BeforeEach
         void setUp() {
             u = new User("900101-2385", "liam@gmail.com", "Liam", "Lol");
+            bike = new Bike("1", Bike.BikeType.STANDARD);
 
         }
 
@@ -256,6 +257,50 @@ public class MutationImprovementTest {
             assertTrue(u.isEmailVerified());
 
             assertEquals(User.UserStatus.ACTIVE, u.getStatus());
+
+        }
+
+        @Test
+        void reactivateIfNotSuspended() {
+
+            int suspensionCountBefore = u.getSuspensionCount();
+            u.suspend("taskig");
+
+            assertTrue(u.getStatus()== User.UserStatus.SUSPENDED);
+            assertEquals(suspensionCountBefore + 1, u.getSuspensionCount());
+
+            u.reactivate();
+
+            assertTrue(u.getStatus()== User.UserStatus.ACTIVE);
+
+        }
+
+        @Test
+        void deactivateUser() {
+            u.deactivate();
+
+            assertTrue(u.getStatus() == User.UserStatus.INACTIVE);
+
+        }
+
+        @Test
+        void updateMembership() {
+            u.verifyEmail();
+            u.activate();
+
+            User.MembershipType membershipTypeBefore = u.getMembershipType();
+            System.out.println(membershipTypeBefore);
+
+            u.updateMembership(User.MembershipType.STUDENT);
+
+
+            assertNotEquals(u.getMembershipType(), membershipTypeBefore);
+        }
+
+        @Test
+        void startRide() {
+
+            u.startRide("1");
 
         }
 
