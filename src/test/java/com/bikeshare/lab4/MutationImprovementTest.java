@@ -267,6 +267,92 @@ public class MutationImprovementTest {
         // - What's your new mutation coverage percentage?
         // - Which specific mutations are you most proud of killing?
 
+        @Test
+        void negativeAmountThrows() {
+
+            IllegalArgumentException ex = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> u.addFunds(-0.01));
+
+            assertEquals("Amount must be positive", ex.getMessage());
+        }
+
+        @Test
+        void zeroAmountThrows() {
+
+            IllegalArgumentException ex = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> u.addFunds(0.0));
+
+            assertEquals("Amount must be positive", ex.getMessage());
+        }
+
+        @Test
+        void aboveUpperLimitThrows() {
+
+            IllegalArgumentException ex = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> u.addFunds(1000.01));
+
+            assertEquals("Cannot add more than $1000 at once", ex.getMessage());
+        }
+
+        @Test
+        void exactlyUpperLimitAllowed() {
+
+            double before = u.getAccountBalance();
+            u.addFunds(1000.0);
+
+            assertEquals(before + 1000.0, u.getAccountBalance());
+        }
+
+        @Test
+        void deductExactlyBalanceAllowed() {
+
+            u.addFunds(50.0);
+
+            u.deductFunds(50.0);
+
+            assertEquals(0.0, u.getAccountBalance());
+            assertEquals(50.0, u.getTotalSpent());
+        }
+
+        @Test
+        void deductNegativeAmountThrows() {
+            u.addFunds(100);
+
+            IllegalArgumentException ex = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> u.deductFunds(-0.01));
+
+            assertEquals("Amount cannot be negative", ex.getMessage());
+        }
+
+        @Test
+        void deductZeroAmountAllowedNoChange() {
+
+            u.addFunds(50.0);
+            double beforeBalance = u.getAccountBalance();
+            double beforeSpent = u.getTotalSpent();
+
+            u.deductFunds(0.0);
+
+            assertEquals(beforeBalance, u.getAccountBalance());
+            assertEquals(beforeSpent, u.getTotalSpent());
+        }
+
+        @Test
+        void deductAboveBalanceThrows() {
+            u.addFunds(50.0);
+
+            IllegalStateException ex = assertThrows(
+                    IllegalStateException.class,
+                    () -> u.deductFunds(50.01));
+
+            assertEquals("Insufficient balance", ex.getMessage());
+            
+        }
+
     }
 
 }
