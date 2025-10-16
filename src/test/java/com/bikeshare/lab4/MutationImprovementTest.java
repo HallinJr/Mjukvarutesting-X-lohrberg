@@ -422,9 +422,6 @@ public class MutationImprovementTest {
         @Test
         void studentNoRides() {
 
-            u.verifyEmail();
-            u.activate();
-
             u.updateMembership(User.MembershipType.STUDENT);
             assertEquals(0.20, u.calculateDiscount());
 
@@ -432,8 +429,6 @@ public class MutationImprovementTest {
 
         @Test
         void premiumAbove100Rides() {
-            u.verifyEmail();
-            u.activate();
 
             u.updateMembership(User.MembershipType.PREMIUM);
 
