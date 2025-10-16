@@ -2,7 +2,6 @@ package com.bikeshare.lab4;
 
 import java.time.LocalDate;
 
-import com.bikeshare.model.Bike;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -222,6 +221,8 @@ public class MutationImprovementTest {
         @BeforeEach
         void setUp() {
             u = new User("900101-2385", "liam@gmail.com", "Liam", "Lol");
+            u.verifyEmail();
+            u.activate();
 
         }
 
@@ -236,6 +237,7 @@ public class MutationImprovementTest {
             // TODO: If you want extra credit, look at User class mutations
             // Create User objects and test their methods
             // Use mocks if User has dependencies in the future
+            u = new User("900101-2385", "liam@gmail.com", "Liam", "Hallin");
 
             u.verifyEmail();
 
@@ -283,8 +285,7 @@ public class MutationImprovementTest {
 
         @Test
         void updateMembership() {
-            u.verifyEmail();
-            u.activate();
+
 
             User.MembershipType membershipTypeBefore = u.getMembershipType();
             System.out.println(membershipTypeBefore);
@@ -296,9 +297,29 @@ public class MutationImprovementTest {
         }
 
         @Test
-        void startRide() {
+        void startRideWithSufficientFunds() {
+            u.addFunds(5);
 
             u.startRide("1");
+
+            assertTrue(u.hasActiveRide());
+
+            u.endRide();
+
+            assertFalse(u.hasActiveRide());
+
+        }
+
+        @Test
+        void endRideIncreaseTotalRides() {
+            int beforeTotalRides = u.getTotalRides();
+            u.addFunds(40);
+
+            u.startRide("Liam");
+
+            u.endRide();
+
+            assertEquals(beforeTotalRides + 1, u.getTotalRides());
 
         }
 
